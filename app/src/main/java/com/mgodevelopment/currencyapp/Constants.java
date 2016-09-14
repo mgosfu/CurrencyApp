@@ -8,6 +8,10 @@ public class Constants {
     // URL for retrieval of currency exchange rates
     public static final String CURRENCY_URL = "http://api.fixer.io/latest?base=";
 
+    // constants for timeout settings for json request
+    public static final int CONNECTION_TIMEOUT = 10000;
+    public static final int READ_TIMEOUT = 10000;
+
     // constants for parsing currency json response
     public static final String BASE = "base";
     public static final String DATE = "date";
