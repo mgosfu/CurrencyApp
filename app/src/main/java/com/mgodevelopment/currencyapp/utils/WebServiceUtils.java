@@ -1,16 +1,20 @@
 package com.mgodevelopment.currencyapp.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+
 import com.mgodevelopment.currencyapp.Constants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 
@@ -39,7 +43,7 @@ public class WebServiceUtils {
                 LogUtils.log(TAG, "URL Response error");
             }
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            return new JSONObject(convertInputStreamtoString(in));
+            return new JSONObject(convertInputStreamToString(in));
 
         } catch (MalformedURLException e) {
             LogUtils.log(TAG, e.getMessage());
@@ -59,4 +63,61 @@ public class WebServiceUtils {
 
     }
 
+    private static String convertInputStreamToString(InputStream inStream) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inStream));
+        String responseText;
+
+        try {
+            while ((responseText = bufferedReader.readLine()) != null) {
+                stringBuilder.append(responseText);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return stringBuilder.toString();
+
+    }
+
+    public static boolean hasInternetConnection(Context context) {
+
+        ConnectivityManager connectivityManager = ((ConnectivityManager)
+                context.getSystemService(Context.CONNECTIVITY_SERVICE));
+
+        return connectivityManager != null &&
+                connectivityManager.getActiveNetworkInfo() != null &&
+                connectivityManager.getActiveNetworkInfo().isConnected();
+
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
