@@ -48,7 +48,9 @@ public class CurrencyService extends IntentService {
         Bundle bundle = new Bundle();
 
         if (url != null && !TextUtils.isEmpty(url)) {
+
             receiverForSending.send(Constants.STATUS_RUNNING, Bundle.EMPTY);
+
             if (WebServiceUtils.hasInternetConnection(getApplicationContext())) {
                 try {
                     JSONObject obj = WebServiceUtils.requestJSONObject(url);
@@ -59,41 +61,20 @@ public class CurrencyService extends IntentService {
                         receiverForSending.send(Constants.STATUS_FINISHED, bundle);
 
                     }
+                } catch (Exception e) {
+
+                    bundle.putString(Intent.EXTRA_TEXT, e.toString());
+                    receiverForSending.send(Constants.STATUS_ERROR, bundle);
+
                 }
+            } else {
+                LogUtils.log(TAG, "No internet connection");
             }
+
         }
+
+        LogUtils.log(TAG, "Currency Service has stopped");
+        stopSelf();
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
