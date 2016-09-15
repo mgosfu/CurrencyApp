@@ -19,8 +19,8 @@ import com.mgodevelopment.currencyapp.value_objects.Currency;
 public class MainActivity extends AppCompatActivity
         implements CurrencyReceiver.Receiver {
 
-    private String mBaseCurrency = Constants.CURRENCY_CODES[3];
-    private String mTargetCurrency = Constants.CURRENCY_CODES[30];
+    private String mBaseCurrency = Constants.CURRENCY_CODES[0];
+    private String mTargetCurrency = Constants.CURRENCY_CODES[1];
     private CurrencyTableHelper mCurrencyTableHelper;
 
     private static final String TAG = MainActivity.class.getName();
