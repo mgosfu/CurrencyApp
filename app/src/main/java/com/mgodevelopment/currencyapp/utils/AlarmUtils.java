@@ -33,7 +33,7 @@ public class AlarmUtils {
         stopService();
         sPendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         sAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        sAlarmManager.setRepeating(AlarmManager.RTC,
+        sAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                 Calendar.getInstance().getTimeInMillis(),
                 REPEAT_TIME[repeat.ordinal()] * 1000, sPendingIntent);
         LogUtils.log(TAG, "Alarm has been started. " + repeat);
