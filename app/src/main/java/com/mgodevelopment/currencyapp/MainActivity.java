@@ -4,11 +4,18 @@ import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.mgodevelopment.currencyapp.adapters.CurrencyAdapter;
 import com.mgodevelopment.currencyapp.database.CurrencyDatabaseAdapter;
 import com.mgodevelopment.currencyapp.database.CurrencyTableHelper;
 import com.mgodevelopment.currencyapp.receivers.CurrencyReceiver;
@@ -18,6 +25,8 @@ import com.mgodevelopment.currencyapp.utils.LogUtils;
 import com.mgodevelopment.currencyapp.utils.NotificationUtils;
 import com.mgodevelopment.currencyapp.utils.SharedPreferencesUtils;
 import com.mgodevelopment.currencyapp.value_objects.Currency;
+
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity
         implements CurrencyReceiver.Receiver {
@@ -30,6 +39,11 @@ public class MainActivity extends AppCompatActivity
 
     private int mServiceRepetition = AlarmUtils.REPEAT.REPEAT_EVERY_MINUTE.ordinal();
 
+    private CoordinatorLayout mLogLayout;
+    private boolean mIsLogVisible;
+    private ListView mBaseCurrencyList;
+    private ListView mTargetCurrencyList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -37,8 +51,33 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         resetDownloads();
+
+        initCurrencies();
         initDB();
+        initToolbar();
+        initSpinner();
+        initCurrencyList();
+
+        showLogs();
+
+        mLogLayout = (CoordinatorLayout) findViewById(R.id.log_layout);
+
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+        mServiceRepetition = SharedPreferencesUtils.getServiceRepetition(this);
         retrieveCurrencyExchangeRate();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+        LogUtils.setLogListener(null);
 
     }
 
@@ -113,6 +152,71 @@ public class MainActivity extends AppCompatActivity
         CurrencyDatabaseAdapter currencyDatabaseAdapter = new CurrencyDatabaseAdapter(this);
         mCurrencyTableHelper = new CurrencyTableHelper(currencyDatabaseAdapter);
 
+    }
+
+    private void initToolbar() {
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+    }
+
+    private void initSpinner() {
+
+        final Spinner spinner = (Spinner) findViewById(R.id.time_frequency);
+        spinner.setSaveEnabled(true);
+        spinner.setSelection(SharedPreferencesUtils.getServiceRepetition(this), false);
+        spinner.post(new Runnable() {
+            @Override
+            public void run() {
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                        SharedPreferencesUtils.updateServiceRepetition(MainActivity.this, position);
+                        mServiceRepetition = position;
+
+                        if (position >= AlarmUtils.REPEAT.values().length) {
+                            AlarmUtils.stopService();
+                        } else {
+                            retrieveCurrencyExchangeRate();
+                        }
+
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+            }
+        });
+
+    }
+
+    private void initCurrencyList() {
+
+        mBaseCurrencyList = (ListView) findViewById(R.id.base_currency_list);
+        mTargetCurrencyList = (ListView) findViewById(R.id.target_currency_list);
+
+        CurrencyAdapter baseCurrencyAdapter = new CurrencyAdapter(this);
+        CurrencyAdapter targetCurrencyAdapter = new CurrencyAdapter(this);
+
+        int baseCurrencyIndex = retrieveIndexOf(mBaseCurrency);
+        int targetCurrencyIndex = retrieveIndexOf(mTargetCurrency);
+
+        mBaseCurrencyList.setItemChecked(baseCurrencyIndex, true);
+        mTargetCurrencyList.setItemChecked(targetCurrencyIndex, true);
+
+        mBaseCurrencyList.setSelection(baseCurrencyIndex);
+        mTargetCurrencyList.setSelection(targetCurrencyIndex);
+
+    }
+
+    private int retrieveIndexOf(String currency) {
+        return Arrays.asList(Constants.CURRENCY_CODES).indexOf(currency);
     }
 
     private void retrieveCurrencyExchangeRate() {
