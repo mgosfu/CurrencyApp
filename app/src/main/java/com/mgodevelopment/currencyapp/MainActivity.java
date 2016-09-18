@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton mFloatingActionButton;
 
     private boolean mIsLogVisible;
-    private boolean isFabVisibile = true;
+    private boolean mIsFabVisible = true;
     private ListView mBaseCurrencyList;
     private ListView mTargetCurrencyList;
     private LineChart mLineChart;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity
         initCurrencyList();
         initLineChart();
 
+        addActionButtonListener();
         showLogs();
 
         mLogLayout = (CoordinatorLayout) findViewById(R.id.log_layout);
@@ -417,6 +419,50 @@ public class MainActivity extends AppCompatActivity
         SharedPreferencesUtils.updateNumDownloads(this, 0);
     }
 
+    private void addActionButtonListener() {
+
+        mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+
+        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, mFloatingActionButton);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+
+                        switch (item.getItemId()) {
+                            case R.id.clear_database:
+                                mCurrencyTableHelper.clearCurrencyTable();
+                                LogUtils.log(TAG, "Currency Database has been cleared.");
+                                mLineChart.clearValues();
+                                updateLineChart();
+                                break;
+                            case R.id.graph:
+                                findViewById(R.id.currency_list_layout).setVisibility(View.GONE);
+                                mLineChart.setVisibility(View.VISIBLE);
+                                updateLineChart();
+                                break;
+                            case R.id.selection:
+                                findViewById(R.id.currency_list_layout).setVisibility(View.VISIBLE);
+                                mLineChart.setVisibility(View.GONE);
+                                break;
+                        }
+
+                        return true;
+
+                    }
+                });
+
+                popupMenu.show();
+
+            }
+        });
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -436,6 +482,11 @@ public class MainActivity extends AppCompatActivity
                 mIsLogVisible = !mIsLogVisible;
                 item.setIcon(mIsLogVisible ? R.drawable.ic_keyboard_hide : R.drawable.ic_keyboard);
                 mLogLayout.setVisibility(mIsLogVisible ? View.VISIBLE : View.GONE);
+                break;
+            case R.id.action_show_fab:
+                mIsFabVisible = !mIsFabVisible;
+                item.setIcon(mIsFabVisible ? R.drawable.ic_remove : R.drawable.ic_add);
+                mFloatingActionButton.setVisibility(mIsFabVisible ? View.VISIBLE : View.GONE);
                 break;
             default:
                 break;

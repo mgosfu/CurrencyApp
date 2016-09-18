@@ -91,14 +91,13 @@
                     android:padding="20dp"
                     android:textColor="@android:color/white"
                     android:textSize="14sp"/>
-
             </ScrollView>
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|right|end"
+                app:layout_anchorGravity="bottom|right|end"
                 android:layout_margin="16dp"
                 android:backgroundTint="@android:color/holo_blue_dark"
                 android:clickable="true"
