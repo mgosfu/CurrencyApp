@@ -49,12 +49,11 @@ public class CurrencyAdapter extends BaseAdapter {
             convertView.setTag(viewHolder);
 
         } else {
-
             viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.textView.setText(Constants.CURRENCY_NAMES[position] + "(" + Constants.CURRENCY_CODES[position]);
-            viewHolder.textView.setText(mContext.getString(R.string.currency_name_short_long, Constants.CURRENCY_NAMES[position], Constants.CURRENCY_CODES[position]));
-
         }
+
+        //viewHolder.textView.setText(Constants.CURRENCY_NAMES[position] + "(" + Constants.CURRENCY_CODES[position]);
+        viewHolder.textView.setText(mContext.getString(R.string.currency_name_short_long, Constants.CURRENCY_NAMES[position], Constants.CURRENCY_CODES[position]));
 
         return convertView;
 
@@ -65,39 +64,3 @@ public class CurrencyAdapter extends BaseAdapter {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
