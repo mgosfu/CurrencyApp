@@ -15,6 +15,13 @@
     </string-array>
 
     <string name="currency_name_short_long">%1$s (%2$s)</string>
-    <string name="log_visibility">Log Visibility</string>
-    <string name="clear_logs">Clear Logs</string>
+
+    <string name="menu_show_logs">Log Visibility</string>
+    <string name="menu_clear_logs">Clear Logs</string>
+    <string name="menu_fab_show">FAB Visibility</string>
+
+    <string name="popup_menu_selection">Currency Selection</string>
+    <string name="popup_menu_clear_database">Clear Database</string>
+    <string name="popup_menu_show_graph">Show Graph</string>
+
 </resources>

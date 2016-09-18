@@ -64,6 +64,12 @@
 
             </LinearLayout>
 
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/line_chart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
+
         </RelativeLayout>
 
         <android.support.design.widget.CoordinatorLayout
@@ -87,6 +93,19 @@
                     android:textSize="14sp"/>
 
             </ScrollView>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right|end"
+                android:layout_margin="16dp"
+                android:backgroundTint="@android:color/holo_blue_dark"
+                android:clickable="true"
+                android:elevation="6dp"
+                android:src="@drawable/ic_menu"
+                app:borderWidth="0dp"
+                app:layout_anchor="@id/log_scroll"/>
 
         </android.support.design.widget.CoordinatorLayout>
 

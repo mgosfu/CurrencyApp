@@ -5,6 +5,7 @@ import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -16,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
 import com.mgodevelopment.currencyapp.adapters.CurrencyAdapter;
 import com.mgodevelopment.currencyapp.database.CurrencyDatabaseAdapter;
 import com.mgodevelopment.currencyapp.database.CurrencyTableHelper;
@@ -41,9 +43,13 @@ public class MainActivity extends AppCompatActivity
     private int mServiceRepetition = AlarmUtils.REPEAT.REPEAT_EVERY_MINUTE.ordinal();
 
     private CoordinatorLayout mLogLayout;
+    private FloatingActionButton mFloatingActionButton;
+
     private boolean mIsLogVisible;
+    private boolean isFabVisibile = true;
     private ListView mBaseCurrencyList;
     private ListView mTargetCurrencyList;
+    private LineChart mLineChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity
         initToolbar();
         initSpinner();
         initCurrencyList();
+        initLineChart();
 
         showLogs();
 
@@ -133,6 +140,8 @@ public class MainActivity extends AppCompatActivity
 
                                 }
 
+                            } else {
+                                updateLineChart();
                             }
 
                         }
@@ -225,6 +234,12 @@ public class MainActivity extends AppCompatActivity
 
         mBaseCurrency = SharedPreferencesUtils.getCurrency(this, true);
         mTargetCurrency = SharedPreferencesUtils.getCurrency(this, false);
+
+    }
+
+    private void initLineChart() {
+
+
 
     }
 
