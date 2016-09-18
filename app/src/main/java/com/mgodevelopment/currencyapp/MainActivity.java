@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mgodevelopment.currencyapp.adapters.CurrencyAdapter;
@@ -204,6 +205,9 @@ public class MainActivity extends AppCompatActivity
         CurrencyAdapter baseCurrencyAdapter = new CurrencyAdapter(this);
         CurrencyAdapter targetCurrencyAdapter = new CurrencyAdapter(this);
 
+        mBaseCurrencyList.setAdapter(baseCurrencyAdapter);
+        mTargetCurrencyList.setAdapter(targetCurrencyAdapter);
+
         int baseCurrencyIndex = retrieveIndexOf(mBaseCurrency);
         int targetCurrencyIndex = retrieveIndexOf(mTargetCurrency);
 
@@ -213,32 +217,90 @@ public class MainActivity extends AppCompatActivity
         mBaseCurrencyList.setSelection(baseCurrencyIndex);
         mTargetCurrencyList.setSelection(targetCurrencyIndex);
 
+        addCurrencySelectionListener();
+
+    }
+
+    private void initCurrencies() {
+
+        mBaseCurrency = SharedPreferencesUtils.getCurrency(this, true);
+        mTargetCurrency = SharedPreferencesUtils.getCurrency(this, false);
+
+    }
+
+    private void showLogs() {
+
+        final TextView logText = (TextView) findViewById(R.id.log_text);
+        LogUtils.setLogListener(new LogUtils.LogListener() {
+            @Override
+            public void onLogged(final StringBuffer log) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        logText.setText(log.toString());
+                        logText.invalidate();
+                    }
+                });
+            }
+        });
+
     }
 
     private int retrieveIndexOf(String currency) {
         return Arrays.asList(Constants.CURRENCY_CODES).indexOf(currency);
     }
 
+    private void addCurrencySelectionListener() {
+
+        mBaseCurrencyList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                mBaseCurrency = Constants.CURRENCY_CODES[position];
+                LogUtils.log(TAG, "Base Currency has changed to: " + mBaseCurrency);
+                SharedPreferencesUtils.updateCurrency(MainActivity.this, mBaseCurrency, true);
+                retrieveCurrencyExchangeRate();
+
+            }
+        });
+
+        mTargetCurrencyList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                mTargetCurrency = Constants.CURRENCY_CODES[position];
+                LogUtils.log(TAG, "Target Currency has changed to: " + mTargetCurrency);
+                SharedPreferencesUtils.updateCurrency(MainActivity.this, mTargetCurrency, false);
+                retrieveCurrencyExchangeRate();
+
+            }
+        });
+
+    }
+
     private void retrieveCurrencyExchangeRate() {
 
-        CurrencyReceiver receiver = new CurrencyReceiver(new Handler());
-        receiver.setReceiver(this);
-        Intent intent = new Intent(Intent.ACTION_SYNC, null, getApplicationContext(), CurrencyService.class);
-        intent.setExtrasClassLoader(CurrencyService.class.getClassLoader());
+        if (mServiceRepetition < AlarmUtils.REPEAT.values().length) {
 
-        Bundle bundle = new Bundle();
-        String url = Constants.CURRENCY_URL + mBaseCurrency;
-        bundle.putString(Constants.URL, url);
-        bundle.putParcelable(Constants.RECEIVER, receiver);
-        bundle.putInt(Constants.REQUEST_ID, Constants.REQUEST_ID_NUM);
-        bundle.putString(Constants.CURRENCY_NAME, mTargetCurrency);
-        bundle.putString(Constants.CURRENCY_BASE, mBaseCurrency);
-        intent.putExtra(Constants.BUNDLE, bundle);
-        //startService(intent);
+            CurrencyReceiver receiver = new CurrencyReceiver(new Handler());
+            receiver.setReceiver(this);
+            Intent intent = new Intent(Intent.ACTION_SYNC, null, getApplicationContext(), CurrencyService.class);
+            intent.setExtrasClassLoader(CurrencyService.class.getClassLoader());
 
-        AlarmUtils.startService(this,
-                intent,
-                AlarmUtils.REPEAT.values()[mServiceRepetition]);
+            Bundle bundle = new Bundle();
+            String url = Constants.CURRENCY_URL + mBaseCurrency;
+            bundle.putString(Constants.URL, url);
+            bundle.putParcelable(Constants.RECEIVER, receiver);
+            bundle.putInt(Constants.REQUEST_ID, Constants.REQUEST_ID_NUM);
+            bundle.putString(Constants.CURRENCY_NAME, mTargetCurrency);
+            bundle.putString(Constants.CURRENCY_BASE, mBaseCurrency);
+            intent.putExtra(Constants.BUNDLE, bundle);
+            //startService(intent);
+
+            AlarmUtils.startService(this, intent,
+                    AlarmUtils.REPEAT.values()[mServiceRepetition]);
+
+        }
 
     }
 
@@ -255,16 +317,23 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+
+            case R.id.action_clear_logs:
+                LogUtils.clearLogs();
+                return true;
+            case R.id.action_show_logs:
+                mIsLogVisible = !mIsLogVisible;
+                item.setIcon(mIsLogVisible ? R.drawable.ic_keyboard_hide : R.drawable.ic_keyboard);
+                mLogLayout.setVisibility(mIsLogVisible ? View.VISIBLE : View.GONE);
+                break;
+            default:
+                break;
+
         }
 
         return super.onOptionsItemSelected(item);
+
     }
 }
